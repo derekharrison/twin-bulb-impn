@@ -1,0 +1,11 @@
+.settings/
+Debug/
+.cproject
+.DS_Store
+.project
+*png
+*aux
+*log
+*gz
+two-bulb-impn.xcodeproj/
+two-bulb-impn.xcodeproj/project.xcworkspace/xcuserdata/derekharrison.xcuserdatad/UserInterfaceState.xcuserstate

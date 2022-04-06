@@ -1,0 +1,220 @@
+\documentclass[11]{Report}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{float}
+\makeatletter
+\newcommand*\bigcdot{\mathpalette\bigcdot@{.4}}
+\newcommand*\bigcdot@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\makeatother
+\usepackage{siunitx} % Required for alignment
+\usepackage{titlesec}
+
+\sisetup{
+  round-mode          = places, % Rounds numbers
+  round-precision     = 2, % to 2 places
+}
+
+\begin{document}
+\author{Derek W. Harrison}
+\title{Numerical solution of the Maxwell-Stefan equations modeling the $n$-component twin-bulb diffusion experiment using the finite volume method}
+
+\maketitle
+\section*{Introduction}
+The Maxwell-Stefan equations modeling multi-component diffusion in the twin-bulb experiment are solved using the finite volume method. Time discretization is fully implicit. To validate the solution the results are compared with results obtained from other numerical schemes as well as experimental observations.
+
+\section*{Twin-bulb model}
+The twin-bulb experiment [\ref{eqn:my_ref_2}] consists of two small compartments (bulbs) connected by a tube through which the components can diffuse. The bulbs contain $n$ components. Diffusion through the tube can be modeled by the Maxwell-Stefan equations [\ref{eqn:my_ref_1}]:
+\begin{equation}
+\label{eqn:eqn_1}
+-\left( \frac{\partial \ln{\gamma_i}}{\partial \ln{x_i}} + 1 \right) \nabla x_i = \sum_{j \neq i} \frac{x_j \textbf{J}_i - x_i \textbf{J}_j}{c_t D_{ij}}
+\end{equation}
+For ideal systems the activity coefficient $\gamma_i$ of component $i$ is equal to unity. The left side of (\ref{eqn:eqn_1}) then simplifies, resulting in:
+\begin{equation}
+\label{eqn:eqn_2}
+- \nabla x_i = \sum_{j \neq i} \frac{x_j \textbf{J}_i - x_i \textbf{J}_j}{c_t D_{ij}}
+\end{equation}
+From a mass balance follows that the change in local composition at any given time is:
+\begin{equation}
+\label{eqn:eqn_3}
+c_t \frac{\partial x_i}{\partial t} = - \nabla \bigcdot \textbf{J}_i
+\end{equation}
+Diffusion occurs at constant pressure. To preserve the total concentration the fluxes of the different components sum up to zero:
+\begin{equation}
+\label{eqn:eqn_4}
+\sum_{i} \textbf{J}_i = 0
+\end{equation}
+\section*{Method}
+To compute the composition in the bulbs the model equations (\ref{eqn:eqn_2}) - (\ref{eqn:eqn_4}) are solved using the finite volume method. Time discretization is fully implicit, achieved by eliminating the flux-components from the model equations. Central differencing is used for the diffusion terms.
+
+Three cases are considered, the three-component (case 1), four-component (case 2) and five-component (case 3) systems. The bulbs are filled with gaseous $H_2$, $N_2$, $Ne$, $Ar$ and $CO_2$. In all three cases the bulb parameters are the same. The volumes of the bulbs are $5e-4$ $(m^3)$ and the tube connecting the bulbs has a length of $1e-2$ $(m)$ and a diameter of $2e-3$ $(m)$. The diffusivities and initial composition in the bulbs are given in table \ref{tab:table1}.
+
+To validate the solutions they are compared with the results obtained from other methods. In the case of the three-component system, case 1, results are compared with results obtained from an implicit method designed specifically for the three-component system and with experimental observations. To validate the solutions of cases 2 and 3, results are compared with the results obtained from an explicit scheme based on a dynamic multi-directional search as well as an approach which solves (\ref{eqn:eqn_2}) given the current composition and uses explicit time discretization. 
+
+
+    
+\begin{table}[h!]
+  \begin{center}
+  \caption{Diffusivities and initial bulb compositions.}
+    \label{tab:table1}
+    \begin{tabular}{c|c|c|c} % <-- Changed to S here.
+      \hline
+      Parameters &      Case 1      &      Case 2      &      Case 3      \\
+      \hline
+      $D_{12}$ $(m^2 / s)$ & $8.33e-5$ & $8.33e-5$ & $8.33e-5$\\
+      $D_{13}$ $(m^2 / s)$ & $6.8e-5$ & $6.8e-5$ & $6.8e-5$\\
+      $D_{14}$ $(m^2 / s)$ & $0$ & $3.8e-5$ & $3.8e-5$\\
+      $D_{15}$ $(m^2 / s)$ & $0$ & $0$ & $0.8e-5$ \\
+      $D_{23}$ $(m^2 / s)$ & $1.68e-5$ & $1.68e-5$ & $1.68e-5$ \\
+      $D_{24}$ $(m^2 / s)$ & $0$ & $4.68e-5$ & $4.68e-5$ \\
+      $D_{25}$ $(m^2 / s)$ & $0$ & $0$ & $9.68e-5$ \\
+      $D_{34}$ $(m^2 / s)$ & $0$ & $5.68e-5$ & $5.68e-5$ \\
+      $D_{35}$ $(m^2 / s)$ & $0$ & $0$ & $2.68e-5$ \\
+      $D_{45}$ $(m^2 / s)$ & $0$ & $0$ & $7.68e-5$ \\
+      $H_2$ $(-)$ bulb 1 & 0.501 & 0.501 & 0.301 \\    
+      $N_2$ $(-)$ bulb 1 & 0.499 & 0.200 & 0.200 \\      
+      $Ne$ $(-)$ bulb 1 & 0.0 & 0.150 & 0.150 \\     
+      $Ar$ $(-)$ bulb 1 & 0.0 & 0.0 & 0.200 \\
+      $CO_2$ $(-)$ bulb 1 & 0.0 & 0.149 & 0.149 \\
+      $H_2$ $(-)$ bulb 2 & 0.0 & 0.499 & 0.299 \\
+      $N_2$ $(-)$ bulb 2 & 0.501 & 0.0 & 0.0 \\
+      $Ne$ $(-)$ bulb 2 & 0.0 & 0.152 & 0.152 \\
+      $Ar$ $(-)$ bulb 2 & 0.0 & 0.0 & 0.075 \\
+      $CO_2$ $(-)$ bulb 2 & 0.499 & 0.349 & 0.474 \\         
+      \hline
+    \end{tabular}
+  \end{center}
+\end{table}
+
+\section*{Results} 
+The results obtained from solving the model equations for the three-component case are shown in figure \ref{fig:fig_1}. The results are in excellent agreement with the results obtained from the reference three-component implicit scheme (results are not shown) and agree well with experimental observations [\ref{eqn:my_ref_3}]. 
+
+The results for the four-component case are shown in figure \ref{fig:fig_2}. The results are in good agreement with the results obtained from the reference explicit schemes (results not shown).
+
+Results of the five-component system as well as the results of the scheme based on a multi-directional search are shown in figure \ref{fig:fig_3}. The solution of the explicit scheme overshoots somewhat for two of the components, but the remaining results agree fairly well.
+
+\begin{figure}
+\includegraphics[width=\linewidth]{graph_of_results.png}
+\caption{The mole fraction as a function of time (h).}
+\label{fig:fig_1}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\linewidth]{graph_of_results_4comp.png}
+\caption{The mole fraction as a function of time (h).}
+\label{fig:fig_2}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\linewidth]{graph_of_results_5comp.png}
+\caption{The mole fraction as a function of time (h).}
+\label{fig:fig_3}
+\end{figure}
+
+\section*{Discussion}
+Explicit time discretization was found to require large numbers of timesteps in order to be stable to converge and give accurate solutions, leading to relatively long running times. The method using a dynamic multi-directional search was stable, since solutions are bounded, but running times were also relatively long. Implicit time discretization was found to be stable, even when small numbers of timesteps were used. The implicit schemes also had the shortest running times, suggesting that the efficiency gained by using implicit discretization and using fewer timesteps outweighs the cost associated with having to solve a linear system at each timestep.
+
+\section*{Conclusion}
+The Maxwell-Stefan equations were solved using the finite volume method. The results of the three-component and four-component systems were found to coincide with the results of the reference implicit and explicit methods. In the five-component system some overshoot was observed in the explicit method using a dynamic multi-directional search, but generally the results agreed well with those obtained from applying the finite volume method. Also, the results were found to agree well with experimental observations, thereby validating the solution. Additionally, the implicit schemes were found to be stable and have the shortest running times.
+
+\section*{Appendix}
+Here the one-dimensional case of the Maxwell-Stefan equations modeling the $n$-component twin-bulb experiment is elaborated on. The one-dimensional case of (\ref{eqn:eqn_2}) is:
+\begin{equation}
+\label{eqn:eqn_5}
+-c_t \frac{\partial x_i}{\partial z} = \sum_{i \neq j} \frac{x_j J_i - x_i J_j}{D_{ij}}
+\end{equation}
+Equation (\ref{eqn:eqn_5}) can be represented as a linear system:
+\begin{equation}
+\label{eqn:eqn_6}
+A \textbf{J} = \textbf{b}
+\end{equation}
+The elements of $A$, obtained after eliminating the $n$th flux component $J_n$, are:
+\begin{equation}
+\label{eqn:eqn_7}
+a_{ij} = \frac{x_i}{D_{in}} + \sum_{k \neq i}^n \frac{x_k}{D_{ik}} \;\;\;\;,\; i = j
+\end{equation}
+\begin{equation}
+\label{eqn:eqn_8}
+a_{ij} = -x_i \left( \frac{1}{D_{ij}} - \frac{1}{D_{in}} \right) \;\;\;\;,\; i \neq j
+\end{equation}
+Elimination of $J_n$ reduces the dimensions of $A$ to ($n - 1, n - 1$) and the bounds of the indices to $i, j \leq n - 1$. The $n$th fraction $x_n$ is computed from the other $n - 1$ fractions:
+\begin{equation}
+\label{eqn:eqn_8b}
+x_n = 1 - \sum_j^{n - 1}x_j
+\end{equation}
+The elements of $\textbf{b}$ are:
+\begin{equation}
+\label{eqn:eqn_9}
+b_i = -c_t \frac{\partial x_i}{\partial z}
+\end{equation}
+To compute the local flux vector equation (\ref{eqn:eqn_6}) is inverted:
+\begin{equation}
+\label{eqn:eqn_10}
+\textbf{J} = A^{-1} \textbf{b}
+\end{equation}
+Now, the one-dimensional case of (\ref{eqn:eqn_3}) is:
+\begin{equation}
+\label{eqn:eqn_11}
+c_t \frac{\partial x_i}{\partial t} = - \frac{\partial J_i}{\partial z}
+\end{equation}
+And from (\ref{eqn:eqn_10}) follows that the flux components are related to the composition gradients:
+\begin{equation}
+\label{eqn:eqn_12}
+J_i = -c_t \sum_j^{n - 1} \alpha_{ij} \frac{\partial x_j}{\partial z} 
+\end{equation}
+The coefficients $\alpha_{ij}$ are the elements of the matrix inverse $A^{-1}$. Finally, after elimination of $c_t$ one obtains a relation between the change in local composition with time and the composition gradients:
+\begin{equation}
+\label{eqn:eqn_13}
+\frac{\partial x_i}{\partial t} = \frac{\partial}{\partial z} \sum_j^{n - 1} \alpha_{ij} \frac{\partial x_j}{\partial z} 
+\end{equation}
+Equations represented by (\ref{eqn:eqn_13}) are the set of equations which model the $n$-component twin-bulb experiment.
+
+\subsubsection*{Nomenclature}
+\begin{table}[H]
+    \begin{tabular}{c l}  
+      $a_{ij}$ & Coefficient ($ m^{-2} \cdot s $) \\     
+      $\textbf{b}$ & Local composition gradient vector ($ mol \cdot m^{-4})$ \\ 
+      $b_i$ & Element of vector of composition gradients ($mol \cdot m^{-4}$)\\    
+      $c_t$ & Concentration ($mol \cdot m^{-3}$) \\
+      $D_{ij}$ & Diffusivity ($m^2 \cdot s^{-1}$) \\
+      $\textbf{J}_i$ & Flux vector ($mol \cdot m^{-2} \cdot s^{-1}$) \\
+      $\textbf{J}$ & Local flux vector ($mol \cdot m^{-2} \cdot s^{-1}$) \\
+      $J_i$ & Flux component ($mol \cdot m^{-2} \cdot s^{-1}$) \\          
+      $n$ & Number of components (-) \\
+      $x_i$ & Mole fraction (-)\\
+      $z$ & Axial coordinate ($m$) \\
+    \end{tabular}
+\end{table}
+\subsubsection*{Greek}
+\begin{table}[H]
+    \begin{tabular}{c l} 
+      $\alpha_{ij}$ & Coefficient of matrix inverse ($m^2 \cdot s^{-1}$) \\
+      $\gamma_i$ & Activity coefficient (-) \\
+    \end{tabular}
+\end{table}
+\subsubsection*{Subscripts}
+\begin{table}[H]
+    \begin{tabular}{c l}
+      $i$ & Component index (-)\\
+      $j$ & Component index (-) \\
+      $t$ & Total (-) \\
+    \end{tabular}
+\end{table}
+
+%\titleformat*{\section}{\normalfont}
+\renewcommand{\bibname}{References}
+\begin{thebibliography}{5}
+\bibitem{Duncan}
+\label{eqn:my_ref_2}
+Duncan, J.B., Toor, H.L. \textit{AIChE J.}, 1962, \textbf{8}, 38–41.
+\bibitem{Taylor} 
+\label{eqn:my_ref_1}
+Taylor, R., Krishna, R. \textit{Multicomponent Mass Transfer}. New York: Wiley, 1993.
+
+\bibitem{Taylor} 
+\label{eqn:my_ref_3}
+Krishna, R. Uphill diffusion in multicomponent mixtures. \textit{Chem. Soc. Rev.}, 2015, \textbf{44}, 2812.
+
+\end{thebibliography}
+
+\end{document}
