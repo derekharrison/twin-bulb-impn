@@ -21,7 +21,7 @@
 
 \maketitle
 \section*{Introduction}
-The Maxwell-Stefan equations modeling multi-component diffusion in the twin-bulb experiment are solved using the finite volume method. Time discretization is fully implicit. To validate the solution the results are compared with results obtained from other numerical schemes as well as experimental observations.
+The Maxwell-Stefan equations modeling multi-component diffusion in the twin-bulb experiment are solved using the finite volume method. Time discretization is fully implicit. To validate the method results are compared with results obtained from other numerical schemes as well as experimental observations.
 
 \section*{Twin-bulb model}
 The twin-bulb experiment [\ref{eqn:my_ref_2}] consists of two small compartments (bulbs) connected by a tube through which the components can diffuse. The bulbs contain $n$ components. Diffusion through the tube can be modeled by the Maxwell-Stefan equations [\ref{eqn:my_ref_1}]:
@@ -49,7 +49,7 @@ To compute the composition in the bulbs the model equations (\ref{eqn:eqn_2}) - 
 
 Three cases are considered, the three-component (case 1), four-component (case 2) and five-component (case 3) systems. The bulbs are filled with gaseous $H_2$, $N_2$, $Ne$, $Ar$ and $CO_2$. In all three cases the bulb parameters are the same. The volumes of the bulbs are $5e-4$ $(m^3)$ and the tube connecting the bulbs has a length of $1e-2$ $(m)$ and a diameter of $2e-3$ $(m)$. The diffusivities and initial composition in the bulbs are given in table \ref{tab:table1}.
 
-To validate the solutions they are compared with the results obtained from other methods. In the case of the three-component system, case 1, results are compared with results obtained from an implicit method designed specifically for the three-component system and with experimental observations. To validate the solutions of cases 2 and 3, results are compared with the results obtained from an explicit scheme based on a dynamic multi-directional search as well as an approach which solves (\ref{eqn:eqn_2}) given the current composition and uses explicit time discretization. 
+Solutions are compared with the results obtained from other methods. In the case of the three-component system, case 1, results are compared with results obtained from an implicit method designed specifically for the three-component system and with experimental observations. Results of cases 2 and 3, are compared with the results obtained from an explicit scheme based on a dynamic multi-directional search as well as an approach which solves (\ref{eqn:eqn_2}) given the current composition and uses explicit time discretization. 
 
 
     
@@ -112,10 +112,10 @@ Results of the five-component system as well as the results of the scheme based 
 \end{figure}
 
 \section*{Discussion}
-Explicit time discretization was found to require large numbers of timesteps in order to be stable to converge and give accurate solutions, leading to relatively long running times. The method using a dynamic multi-directional search was stable, since solutions are bounded, but running times were also relatively long. Implicit time discretization was found to be stable, even when small numbers of timesteps were used. The implicit schemes also had the shortest running times, suggesting that the efficiency gained by using implicit discretization and using fewer timesteps outweighs the cost associated with having to solve a linear system at each timestep.
+Explicit time discretization was found to require large numbers of timesteps in order to be stable and give accurate solutions, leading to relatively long running times. The method using a dynamic multi-directional search was stable, since solutions are bounded, but running times were also relatively long. Implicit time discretization was found to be stable, even when small numbers of timesteps were used. The implicit schemes also had the shortest running times, suggesting that the efficiency gained by using implicit discretization and using fewer timesteps outweighs the cost associated with having to solve a linear system at each timestep.
 
 \section*{Conclusion}
-The Maxwell-Stefan equations were solved using the finite volume method. The results of the three-component and four-component systems were found to coincide with the results of the reference implicit and explicit methods. In the five-component system some overshoot was observed in the explicit method using a dynamic multi-directional search, but generally the results agreed well with those obtained from applying the finite volume method. Also, the results were found to agree well with experimental observations, thereby validating the solution. Additionally, the implicit schemes were found to be stable and have the shortest running times.
+The Maxwell-Stefan equations were solved using the finite volume method. The results of the three-component and four-component systems were found to coincide with the results of the reference implicit and explicit methods. In the five-component system some overshoot was observed in the explicit method using a dynamic multi-directional search, but generally the results agreed well with those obtained from applying the finite volume method. Also, the results were found to agree well with experimental observations, thereby validating the method. Additionally, the implicit schemes were found to be stable and have the shortest running times.
 
 \section*{Appendix}
 Here the one-dimensional case of the Maxwell-Stefan equations modeling the $n$-component twin-bulb experiment is elaborated on. The one-dimensional case of (\ref{eqn:eqn_2}) is:
