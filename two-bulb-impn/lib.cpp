@@ -137,7 +137,7 @@ double co_factor(double ** mat, int n, int i, int j) {
     return fac;
 }
 
-void adj(double ** mat, int n, double ** adj_mat) {
+void adjoint_mat(double ** mat, int n, double ** adj_mat) {
 
     for(int i = 0; i < n; ++i) {
         for(int j = 0; j < n; ++j) {
@@ -150,13 +150,20 @@ void compute_mat_inv(double ** mat, int n, double ** mat_inv) {
 
     double ** adj_mat = mat2D(n);
 
-    adj(mat, n, adj_mat);
+    adjoint_mat(mat, n, adj_mat);
 
     double det = determinant(mat, n);
 
-    for(int i = 0; i < n; ++i) {
-        for(int j = 0; j < n; ++j) {
-            mat_inv[j][i] = 1.0 / det * adj_mat[i][j];
+    // Check if matrix mat is singular
+    if(det == 0)
+        std::cout << "matrix is singular" << std::endl;
+
+    // Matrix mat is non-singular
+    if(det != 0) {
+        for(int i = 0; i < n; ++i) {
+            for(int j = 0; j < n; ++j) {
+                mat_inv[j][i] = 1.0 / det * adj_mat[i][j];
+            }
         }
     }
 
