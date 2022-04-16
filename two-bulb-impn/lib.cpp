@@ -73,6 +73,10 @@ void free_mat2D(double ** mat, int n) {
 double determinant(double ** A, int n) {
     double det = 0;
 
+    if(n == 1) {
+        return A[0][0];
+    }
+
     if(n == 2) {
         return A[0][0] * A[1][1] - A[1][0] * A[0][1];
     }
