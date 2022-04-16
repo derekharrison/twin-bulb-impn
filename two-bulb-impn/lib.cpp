@@ -70,15 +70,15 @@ void free_mat2D(double ** mat, int n) {
 }
 
 
-double determinant(double ** A, int n) {
+double determinant(double ** mat, int n) {
     double det = 0;
 
     if(n == 1) {
-        return A[0][0];
+        return mat[0][0];
     }
 
     if(n == 2) {
-        return A[0][0] * A[1][1] - A[1][0] * A[0][1];
+        return mat[0][0] * mat[1][1] - mat[1][0] * mat[0][1];
     }
 
     if(n > 2) {
@@ -90,7 +90,7 @@ double determinant(double ** A, int n) {
                 int j_m = 0;
                 for(int j = 0; j < n; ++j) {
                     if(j != c) {
-                        M[i - 1][j_m] = A[i][j];
+                        M[i - 1][j_m] = mat[i][j];
                         j_m++;
                     }
 
@@ -99,7 +99,7 @@ double determinant(double ** A, int n) {
 
             double fac = pow(-1, c + 2);
 
-            det = det + A[0][c] * fac * determinant(M, n - 1);
+            det = det + mat[0][c] * fac * determinant(M, n - 1);
 
             free_mat2D(M, n - 1);
 
@@ -110,11 +110,11 @@ double determinant(double ** A, int n) {
 }
 
 
-double co_factor(double ** A, int n, int i, int j) {
+double co_factor(double ** mat, int n, int i, int j) {
 
     double fac = 0;
 
-    double ** M = mat2D(n - 1);
+    double ** mat_red = mat2D(n - 1);
 
     int i_m = 0;
     for(int r = 0; r < n; ++r) {
@@ -122,7 +122,7 @@ double co_factor(double ** A, int n, int i, int j) {
         if(r != i) {
             for(int c = 0; c < n; ++c) {
                 if(c != j) {
-                    M[i_m][j_m] = A[r][c];
+                    mat_red[i_m][j_m] = mat[r][c];
                     j_m++;
                 }
             }
@@ -130,18 +130,18 @@ double co_factor(double ** A, int n, int i, int j) {
         }
     }
 
-    fac = pow(-1, i + j + 2) * determinant(M, n - 1);
+    fac = pow(-1, i + j + 2) * determinant(mat_red, n - 1);
 
-    free_mat2D(M, n - 1);
+    free_mat2D(mat_red, n - 1);
 
     return fac;
 }
 
-void adj(double ** A, int n, double ** adj_mat) {
+void adj(double ** mat, int n, double ** adj_mat) {
 
     for(int i = 0; i < n; ++i) {
         for(int j = 0; j < n; ++j) {
-            adj_mat[i][j] = co_factor(A, n, i, j);
+            adj_mat[i][j] = co_factor(mat, n, i, j);
         }
     }
 }
