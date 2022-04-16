@@ -8,6 +8,7 @@
 //  with implicit time discretization.
 //
 
+#include <chrono>
 #include <iostream>
 
 #include "lib.hpp"
@@ -96,7 +97,7 @@ int main(int argc, const char * argv[]) {
     
     // Perform two-bulb diffusion experiment
     compute_bulb_compositions(e_params, p_params, t_params, ng, n, bulb_data);
-    
+
     // Print results
     std::cout << "bulb 1 data: " << std::endl;
     std::cout << "bulb 1 frac 1: " << bulb_data.mol_fracs_bulb1.x[0] << std::endl;
@@ -109,7 +110,7 @@ int main(int argc, const char * argv[]) {
     std::cout << "bulb 2 frac 2: " << bulb_data.mol_fracs_bulb2.x[1] << std::endl;
     std::cout << "bulb 2 frac 3: " << bulb_data.mol_fracs_bulb2.x[2] << std::endl;
     std::cout << "bulb 2 frac 4: " << bulb_data.mol_fracs_bulb2.x[3] << std::endl;
-    
+
     // Free allocated data
     free_mat2D(p_params.D, n);
     

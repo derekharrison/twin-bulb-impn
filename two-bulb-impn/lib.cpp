@@ -52,154 +52,111 @@ void set_frac_comp3(c_data_t & comp_data) {
     comp_data.bulb_data.mol_fracs_bulb2.x[n - 1] = 1.0 - sum_loc2;
 }
 
-double Determinant(double ** a, int n) {
-   int i, j, j1, j2;
-   double det = 0;
-   double **m = NULL;
+double ** mat2D(int n) {
+    double ** r = new double * [n];
+    for(int i = 0; i < n; ++i) {
+        r[i] = new double[n];
+    }
 
-   if (n < 1) {
-       exit(5);
-   }
-   else if (n == 1) {
-       det = a[0][0];
-   }
-   else if (n == 2) {
-       det = a[0][0] * a[1][1] - a[1][0] * a[0][1];
-   }
-   else {
-       det = 0;
-       for (j1 = 0; j1 < n; j1++)
-       {
-           m = new double * [n - 1];
-           for (i = 0; i < n - 1; i++)
-               m[i] = new double[n - 1];
+    return r;
+}
 
-           for (i = 1; i < n; i++)
-           {
-               j2 = 0;
+void free_mat2D(double ** mat, int n) {
 
-               for (j = 0; j < n; j++)
-               {
-                   if (j == j1)
-                       continue;
+    for(int i = 0; i < n; ++i)
+        delete [] mat[i];
 
-                   m[i-1][j2] = a[i][j];
-                   j2++;
-               }
-           }
-
-           det += pow(-1.0, j1 + 2.0) * a[0][j1] * Determinant(m, n - 1);
-
-           for (i = 0; i < n - 1; i++)
-               delete [] m[i];
-
-           delete [] m;
-      }
-   }
-
-   return det;
-
+    delete [] mat;
 }
 
 
-// Find the cofactor matrix of a square matrix
-void CoFactor(double ** a, int n, double ** b)
-{
-    
-    int i, j, ii, jj, i1, j1;
-    double det;
-    double ** c;
+double determinant(double ** A, int n) {
+    double det = 0;
 
-    c = new double * [n - 1];
-    for (i = 0; i < n - 1; i++)
-        c[i] = new double[n - 1];
+    if(n == 2) {
+        return A[0][0] * A[1][1] - A[1][0] * A[0][1];
+    }
 
-    for (j = 0; j < n; j++) {
-        for (i = 0; i < n; i++) {
+    if(n > 2) {
+        for(int c = 0; c < n; ++c) {
 
-            // Form the adjoint a_ij
-            i1 = 0;
+            double ** M = mat2D(n - 1);
 
-            for (ii = 0; ii < n; ii++) {
-                if (ii == i)
-                    continue;
+            for(int i = 1; i < n; ++i) {
+                int j_m = 0;
+                for(int j = 0; j < n; ++j) {
+                    if(j != c) {
+                        M[i - 1][j_m] = A[i][j];
+                        j_m++;
+                    }
 
-                j1 = 0;
-
-                for (jj = 0; jj < n; jj++) {
-                    if (jj == j)
-                        continue;
-
-                    c[i1][j1] = a[ii][jj];
-                    j1++;
                 }
-                i1++;
             }
 
-            // Calculate the determinate
-            det = Determinant(c, n - 1);
+            double fac = pow(-1, c + 2);
 
-            // Fill in the elements of the cofactor
-            b[i][j] = pow(-1.0, i + j + 2.0) * det;
+            det = det + A[0][c] * fac * determinant(M, n - 1);
+
+            free_mat2D(M, n - 1);
+
         }
     }
 
-    for (i = 0; i < n - 1; i++)
-        delete [] c[i];
-
-    delete [] c;
+    return det;
 }
 
 
-// Transpose of a square matrix, do it in place
-void Transpose(double ** a, int n) {
-    int i, j;
-    double tmp;
+double co_factor(double ** A, int n, int i, int j) {
 
-    for (i = 1; i < n; i++) {
-        for (j = 0; j < i; j++) {
-            tmp = a[i][j];
-            a[i][j] = a[j][i];
-            a[j][i] = tmp;
+    double fac = 0;
+
+    double ** M = mat2D(n - 1);
+
+    int i_m = 0;
+    for(int r = 0; r < n; ++r) {
+        int j_m = 0;
+        if(r != i) {
+            for(int c = 0; c < n; ++c) {
+                if(c != j) {
+                    M[i_m][j_m] = A[r][c];
+                    j_m++;
+                }
+            }
+            i_m++;
+        }
+    }
+
+    fac = pow(-1, i + j + 2) * determinant(M, n - 1);
+
+    free_mat2D(M, n - 1);
+
+    return fac;
+}
+
+void adj(double ** A, int n, double ** adj_mat) {
+
+    for(int i = 0; i < n; ++i) {
+        for(int j = 0; j < n; ++j) {
+            adj_mat[i][j] = co_factor(A, n, i, j);
         }
     }
 }
 
 void compute_mat_inv(double ** mat, int n, double ** mat_inv) {
-    int i, j;
-    
-    // Allocate data for adj matrix
-    double ** mat_adj = new double * [n];
-    
+
+    double ** adj_mat = mat2D(n);
+
+    adj(mat, n, adj_mat);
+
+    double det = determinant(mat, n);
+
     for(int i = 0; i < n; ++i) {
-        mat_adj[i] = new double[n];
-    }
-    
-    // Calculating the determinant of M
-    double det = Determinant(mat, n);
-
-
-    // If matrix is singular, exit
-    if(!det) {
-        printf("\nTransformation matrix is singular\n");
-        exit(4);
-    }
-
-
-    // Calculating co-factor M_adj of M
-    CoFactor(mat, n, mat_adj);
-
-
-    // Transposing M_adj
-    Transpose(mat_adj, n);
-
-
-    // Calculating inverse of transformation matrix
-    for(i = 0; i < n; ++i) {
-        for(j = 0; j < n; ++j) {
-            mat_inv[i][j] = 1.0 / det * mat_adj[i][j];
+        for(int j = 0; j < n; ++j) {
+            mat_inv[j][i] = 1.0 / det * adj_mat[i][j];
         }
     }
+
+    free_mat2D(adj_mat, n);
 }
 
 void mat_prod(double ** mat1, double ** mat2, int n, double ** prod) {
@@ -221,24 +178,6 @@ void print_mat(double ** mat, int n) {
         }
         printf("\n");
     }
-}
-
-double ** mat2D(int n) {
-    double ** r = new double * [n];
-    for(int i = 0; i < n; ++i) {
-        r[i] = new double[n];
-    }
-    
-    return r;
-}
-
-void free_mat2D(double ** mat, int n) {
-
-    for(int i = 0; i < n; ++i) {
-        delete [] mat[i];
-    }
-    
-    delete [] mat;
 }
 
 void compute_coeff_matrix(int flux_node,
