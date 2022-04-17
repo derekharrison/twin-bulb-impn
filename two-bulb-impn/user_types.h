@@ -10,6 +10,7 @@
 
 const int MAX_OUT = 100;
 const int MAX_IN = 100;
+const int MAX_INT = 1215752192;
 
 typedef struct node_data {
     double * x;
@@ -69,5 +70,10 @@ typedef struct computation_data {
     node_t * tube_fracs_old;
     node_t * tube_fracs_inter;
 } c_data_t;
+
+typedef struct order_array_elem {
+    int old_row;
+    double val;
+} oa_elem_t;
 
 #endif /* user_types_h */
