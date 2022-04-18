@@ -51,8 +51,8 @@ void merge(oa_elem_t A[], int p, int q, int r) {
     int i, j;
     size_l = q - p + 1;
     size_r = r - q;
-    oa_elem_t L[size_l+1];
-    oa_elem_t R[size_r+1];
+    oa_elem_t L[size_l + 1];
+    oa_elem_t R[size_r + 1];
     i = 0;
     j = 0;
     for(int n = p; n < q + 1; ++n) {
@@ -112,6 +112,8 @@ void make_ordered_mat(double ** mat, int n, double * order_arr, double ** ordere
             ordered_mat[row][c] = mat[old_row][c];
         }
     }
+
+    delete [] order_array;
 }
 
 int count_leading_zeros(double ** mat, int n, int row) {
@@ -145,11 +147,36 @@ void mat_mult_sq(double ** A, double ** A_inv, int n, double ** mat_res) {
     }
 }
 
+void singularity_check(double ** mat_ref, int n, bool & mat_is_singular) {
+    // Check for singularity
+    for(int row = 0; row < n; ++row) {
+        bool all_zeros_r = true;
+        for(int c = 0; c < n; ++c) {
+            if(mat_ref[row][c] != 0)
+                all_zeros_r = false;
+        }
+        if(all_zeros_r && !mat_is_singular) {
+            printf("Matrix is singular\n");
+            mat_is_singular = true;
+        }
+    }
+
+    for(int col = 0; col < n; ++col) {
+        bool all_zeros_c = true;
+        for(int row = 0; row < n; ++row) {
+            if(mat_ref[row][col] != 0)
+                all_zeros_c = false;
+        }
+        if(all_zeros_c && !mat_is_singular) {
+            printf("Matrix is singular\n");
+            mat_is_singular = true;
+        }
+    }
+}
+
 
 void gauss_jordan(double ** mat, int n, double ** mat_inv) {
 
-    double ** mat_check = mat2D(n);
-    double ** mat_check_ordered = mat2D(n);
     double ** mat_ref = mat2D(n);
     double ** mat_ordered = mat2D(n);
     double ** mat_inv_ordered = mat2D(n);
@@ -171,17 +198,20 @@ void gauss_jordan(double ** mat, int n, double ** mat_inv) {
 
     make_ordered_mat(mat, n, order_arr, mat_ordered);
 
-    make_ordered_mat(mat, n, order_arr, mat_check_ordered);
-
     make_ordered_mat(mat_inv, n, order_arr, mat_inv_ordered);
 
     for(int row = 0; row < n; ++row) {
         for(int c = 0; c < n; ++c) {
-            mat_check[row][c] = mat_check_ordered[row][c];
             mat_ref[row][c] = mat_ordered[row][c];
             mat_inv[row][c] = mat_inv_ordered[row][c];
         }
     }
+
+    // Initialize singularity flag
+    bool mat_is_singular = false;
+
+    // Check if input matrix is singular
+    singularity_check(mat_ref, n, mat_is_singular);
 
     // Convert to row echelon form
     for(int c = 0; c < n; ++c) {
@@ -194,13 +224,10 @@ void gauss_jordan(double ** mat, int n, double ** mat_inv) {
 
             make_ordered_mat(mat_inv, n, order_arr, mat_inv_ordered);
 
-            make_ordered_mat(mat_check, n, order_arr, mat_check_ordered);
-
             for(int row = 0; row < n; ++row) {
                 for(int c = 0; c < n; ++c) {
                     mat_ref[row][c] = mat_ordered[row][c];
                     mat_inv[row][c] = mat_inv_ordered[row][c];
-                    mat_check[row][c] = mat_check_ordered[row][c];
                 }
             }
         }
@@ -228,6 +255,13 @@ void gauss_jordan(double ** mat, int n, double ** mat_inv) {
                 }
                 mat_ref[row][c] = 0;
             }
+
+            int num_lead_zeros = count_leading_zeros(mat_ref, n, row);
+
+            if(num_lead_zeros == n && !mat_is_singular) {
+                printf("Matrix is singular\n");
+                mat_is_singular = true;
+            }
         }
 
     }
@@ -244,6 +278,14 @@ void gauss_jordan(double ** mat, int n, double ** mat_inv) {
         }
     }
 
+    // Check if matrix is singular
+    singularity_check(mat_ref, n, mat_is_singular);
+
+    // Free allocated space
+    free_mat2D(mat_ref, n);
+    free_mat2D(mat_ordered, n);
+    free_mat2D(mat_inv_ordered, n);
+    delete [] order_arr;
 }
 
 void init_diffusivities(p_params_t & p_params, int n) {
