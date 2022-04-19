@@ -45,7 +45,7 @@ Diffusion occurs at constant pressure. To preserve the total concentration the f
 \sum_{i} \textbf{J}_i = 0
 \end{equation}
 \section*{Method}
-To compute the composition in the bulbs the model equations (\ref{eqn:eqn_2}) - (\ref{eqn:eqn_4}) are solved using the finite volume method. Time discretization is fully implicit, achieved by eliminating the flux-components from the model equations. Central differencing is used for the diffusion terms.
+To compute the composition in the bulbs the model equations (\ref{eqn:eqn_2}) - (\ref{eqn:eqn_4}) are solved using the finite volume method. Time discretization is fully implicit, achieved by eliminating the flux-components from the model equations using the Gauss-Jordan method. Central differencing is used for the diffusion terms. The resulting linear system is solved using the Gauss-Seidel method.
 
 Three cases are considered, the three-component (case 1), four-component (case 2) and five-component (case 3) systems. The bulbs are filled with gaseous $H_2$, $N_2$, $Ne$, $Ar$ and $CO_2$. In all three cases the bulb parameters are the same. The volumes of the bulbs are $5e-4$ $(m^3)$ and the tube connecting the bulbs has a length of $1e-2$ $(m)$ and a diameter of $2e-3$ $(m)$. The diffusivities and initial composition in the bulbs are given in table \ref{tab:table1}.
 
