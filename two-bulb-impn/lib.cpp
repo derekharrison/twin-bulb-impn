@@ -468,7 +468,7 @@ void print_mat(double ** mat, int n) {
 void compute_coeff_matrix(int flux_node,
                           c_data_t & comp_data,
                           double * x) {
-    int n = comp_data.n - 0;
+    int n = comp_data.n;
     
     for(int i = 0; i < n - 1; ++i) {
         for(int j = 0; j < n - 1; ++j) {
