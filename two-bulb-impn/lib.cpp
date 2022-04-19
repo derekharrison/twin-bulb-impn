@@ -174,6 +174,16 @@ void singularity_check(double ** mat_ref, int n, bool & mat_is_singular) {
     }
 }
 
+void cut_values(double ** mat, int n) {
+
+    for(int row = 0; row < n; ++row) {
+        for(int col = 0; col < n; ++col) {
+            if(fabs(mat[row][col]) <= SMALL_NUM) {
+                mat[row][col] = 0.0;
+            }
+        }
+    }
+}
 
 void gauss_jordan(double ** mat, int n, double ** mat_inv) {
 
@@ -182,12 +192,9 @@ void gauss_jordan(double ** mat, int n, double ** mat_inv) {
     double ** mat_inv_ordered = mat2D(n);
     double * order_arr = new double[n];
 
-    // Initialize matrix inverse and cut low values out of input
+    // Initialize matrix inverse
     for(int row = 0; row < n; ++row) {
         for(int c = 0; c < n; ++c) {
-            if(fabs(mat[row][c]) <= SMALL_NUM) {
-                mat[row][c] = 0.0;
-            }
             if(c == row) {
                 mat_inv[row][c] = 1.0;
             }
@@ -196,6 +203,9 @@ void gauss_jordan(double ** mat, int n, double ** mat_inv) {
             }
         }
     }
+
+    // Cut low values out of matrix
+    cut_values(mat, n);
 
     // Initial sort of input matrix
     get_order(mat, n, order_arr);
@@ -219,6 +229,9 @@ void gauss_jordan(double ** mat, int n, double ** mat_inv) {
 
     // Convert to row echelon form
     for(int c = 0; c < n; ++c) {
+
+        // Remove low values
+        cut_values(mat_ref, n);
 
         // Sort if under threshold
         if(fabs(mat_ref[c][c]) < SMALL_NUM) {
