@@ -38,7 +38,7 @@ void get_order(double ** mat, int n, double * order_arr) {
     for(int row = 0; row < n; ++row) {
         int order = 0;
         for(int c = 0; c < n; ++c) {
-            if(mat[row][c] == 0) {
+            if(fabs(mat[row][c]) < SMALL_NUM) {
                 order++;
             }
         }
@@ -121,7 +121,7 @@ int count_leading_zeros(double ** mat, int n, int row) {
     int count_lz = 0;
 
     for(int c = 0; c < n; ++c) {
-        if(mat[row][c] == 0) {
+        if(fabs(mat[row][c]) < SMALL_NUM) {
             count_lz++;
         }
         else {
@@ -182,9 +182,12 @@ void gauss_jordan(double ** mat, int n, double ** mat_inv) {
     double ** mat_inv_ordered = mat2D(n);
     double * order_arr = new double[n];
 
-
+    // Initialize matrix inverse and cut low values out of input
     for(int row = 0; row < n; ++row) {
         for(int c = 0; c < n; ++c) {
+            if(fabs(mat[row][c]) <= SMALL_NUM) {
+                mat[row][c] = 0.0;
+            }
             if(c == row) {
                 mat_inv[row][c] = 1.0;
             }
@@ -194,6 +197,7 @@ void gauss_jordan(double ** mat, int n, double ** mat_inv) {
         }
     }
 
+    // Initial sort of input matrix
     get_order(mat, n, order_arr);
 
     make_ordered_mat(mat, n, order_arr, mat_ordered);
@@ -217,7 +221,7 @@ void gauss_jordan(double ** mat, int n, double ** mat_inv) {
     for(int c = 0; c < n; ++c) {
 
         // Sort if under threshold
-        if(fabs(mat_ref[c][c]) < 1e-8) {
+        if(fabs(mat_ref[c][c]) < SMALL_NUM) {
             get_order(mat_ref, n, order_arr);
 
             make_ordered_mat(mat_ref, n, order_arr, mat_ordered);

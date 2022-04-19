@@ -11,6 +11,7 @@
 const int MAX_OUT = 100;
 const int MAX_IN = 100;
 const int MAX_INT = 1215752192;
+const double SMALL_NUM = 1e-10;
 
 typedef struct node_data {
     double * x;
