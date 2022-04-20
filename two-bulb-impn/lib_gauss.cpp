@@ -17,10 +17,11 @@
 void get_order(double ** mat, int n, double * order_arr) {
     for(int row = 0; row < n; ++row) {
         int order = 0;
-        for(int c = 0; c < n; ++c) {
-            if(fabs(mat[row][c]) < SMALL_NUM) {
-                order++;
-            }
+        int c = 0;
+        while(fabs(mat[row][c]) <= SMALL_NUM && c < n) {
+            mat[row][c] = 0.0;
+            order++;
+            c++;
         }
         order_arr[row] = order;
     }
@@ -41,6 +42,9 @@ void make_ordered_mat(double ** mat, int n, double * order_arr, double ** ordere
         for(int c = 0; c < n; ++c) {
             int old_row = order_array[row].old_row;
             ordered_mat[row][c] = mat[old_row][c];
+            if(fabs(ordered_mat[row][c]) <= SMALL_NUM) {
+                ordered_mat[row][c] = 0.0;
+            }
         }
     }
 
