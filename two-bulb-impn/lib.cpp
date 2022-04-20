@@ -19,7 +19,6 @@ std::vector<std::vector<double>> bulb1_t;
 std::vector<std::vector<double>> bulb2_t;
 
 void init_diffusivities(p_params_t & p_params, int n) {
-    p_params.D = mat2D(n);
     
     for(int j = 0; j < n; ++j) {
         for(int c = 0; c < n; ++c) {

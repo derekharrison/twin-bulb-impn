@@ -70,7 +70,9 @@ int main(int argc, const char * argv[]) {
     double D35 = 2.68e-5 * 3600; // units are (m2 / h)
     double D45 = 7.68e-5 * 3600; // units are (m2 / h)
     
-    // Initialize and set diffusivities
+    // Initialize diffusivities
+    p_params.D = mat2D(n);
+
     init_diffusivities(p_params, n);
     
     p_params.D[0][1] = D12; // units (m2 / h)
