@@ -17,11 +17,9 @@
 void get_order(double ** mat, int n, double * order_arr) {
     for(int row = 0; row < n; ++row) {
         int order = 0;
-        int c = 0;
-        while(fabs(mat[row][c]) <= SMALL_NUM && c < n) {
-            mat[row][c] = 0.0;
+        while(fabs(mat[row][order]) <= SMALL_NUM && order < n) {
+            mat[row][order] = 0.0;
             order++;
-            c++;
         }
         order_arr[row] = order;
     }
@@ -53,18 +51,13 @@ void make_ordered_mat(double ** mat, int n, double * order_arr, double ** ordere
 
 int count_leading_zeros(double ** mat, int n, int row) {
 
-    int count_lz = 0;
+    int count = 0;
 
-    for(int c = 0; c < n; ++c) {
-        if(fabs(mat[row][c]) < SMALL_NUM) {
-            count_lz++;
-        }
-        else {
-            break;
-        }
+    while(fabs(mat[row][count]) <= SMALL_NUM && count < n) {
+        count++;
     }
 
-    return count_lz;
+    return count;
 }
 
 void singularity_check(double ** mat_ref, int n, bool & mat_is_singular) {
