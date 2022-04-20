@@ -146,7 +146,7 @@ void gauss_jordan(double ** mat, int n, double ** mat_inv) {
     for(int c = 0; c < n; ++c) {
 
         // Sort if under threshold
-        if(fabs(mat_ref[c][c]) < SMALL_NUM) {
+        if(fabs(mat_ref[c][c]) <= SMALL_NUM) {
             // Get row orders of coefficient matrix
             get_order(mat_ref, n, order_arr);
 
