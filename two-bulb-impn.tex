@@ -49,7 +49,7 @@ To compute the composition in the bulbs the model equations (\ref{eqn:eqn_2}) - 
 
 Three cases are considered, the three-component (case 1), four-component (case 2) and five-component (case 3) systems. The bulbs are filled with gaseous $H_2$, $N_2$, $Ne$, $Ar$ and $CO_2$. In all three cases the bulb parameters are the same. The volumes of the bulbs are $5e-4$ $(m^3)$ and the tube connecting the bulbs has a length of $1e-2$ $(m)$ and a diameter of $2e-3$ $(m)$. The diffusivities and initial composition in the bulbs are given in table \ref{tab:table1}.
 
-Solutions are compared with the results obtained from other methods. In the case of the three-component system, case 1, results are compared with results obtained from an implicit finite volume method designed specifically for the three-component system and with experimental observations. Results of cases 2 and 3 are compared with the results obtained from a method based on a dynamic multi-directional search as well as an approach which solves (\ref{eqn:eqn_2}) given the current composition and uses explicit time discretization. 
+Solutions are compared with the results obtained from other methods. In the case of the three-component system, case 1, results are compared with results obtained from an implicit finite volume scheme designed specifically for the three-component system and with experimental observations. Results of cases 2 and 3 are compared with the results obtained from a method based on a dynamic multi-directional search as well as an approach which solves (\ref{eqn:eqn_2}) given the current composition and uses explicit time discretization. 
 
 
     
@@ -71,16 +71,16 @@ Solutions are compared with the results obtained from other methods. In the case
       $D_{34}$ $(m^2 / s)$ & $0$ & $5.68e-5$ & $5.68e-5$ \\
       $D_{35}$ $(m^2 / s)$ & $0$ & $0$ & $2.68e-5$ \\
       $D_{45}$ $(m^2 / s)$ & $0$ & $0$ & $7.68e-5$ \\
-      $H_2$ $(-)$ bulb 1 & 0.501 & 0.501 & 0.301 \\    
-      $N_2$ $(-)$ bulb 1 & 0.499 & 0.200 & 0.200 \\      
-      $Ne$ $(-)$ bulb 1 & 0.0 & 0.150 & 0.150 \\     
-      $Ar$ $(-)$ bulb 1 & 0.0 & 0.0 & 0.200 \\
-      $CO_2$ $(-)$ bulb 1 & 0.0 & 0.149 & 0.149 \\
-      $H_2$ $(-)$ bulb 2 & 0.0 & 0.499 & 0.299 \\
-      $N_2$ $(-)$ bulb 2 & 0.501 & 0.0 & 0.0 \\
-      $Ne$ $(-)$ bulb 2 & 0.0 & 0.152 & 0.152 \\
-      $Ar$ $(-)$ bulb 2 & 0.0 & 0.0 & 0.075 \\
-      $CO_2$ $(-)$ bulb 2 & 0.499 & 0.349 & 0.474 \\         
+      $H_2$ $(-)$ bulb 1 & $0.501$ & $0.501$ & $0.301$ \\    
+      $N_2$ $(-)$ bulb 1 & $0.499$ & $0.200$ & $0.200$ \\      
+      $Ne$ $(-)$ bulb 1 & $0$ & $0.150$ & $0.150$ \\     
+      $Ar$ $(-)$ bulb 1 & $0$ & $0$ & $0.200$ \\
+      $CO_2$ $(-)$ bulb 1 & $0$ & $0.149$ & $0.149$ \\
+      $H_2$ $(-)$ bulb 2 & $0$ & $0.499$ & $0.299$ \\
+      $N_2$ $(-)$ bulb 2 & $0.501$ & $0$ & $0$ \\
+      $Ne$ $(-)$ bulb 2 & $0$ & $0.152$ & $0.152$ \\
+      $Ar$ $(-)$ bulb 2 & $0$ & $0$ & $0.075$ \\
+      $CO_2$ $(-)$ bulb 2 & $0.499$ & $0.349$ & $0.474$ \\         
       \hline
     \end{tabular}
   \end{center}
