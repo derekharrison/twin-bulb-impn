@@ -131,8 +131,8 @@ void compute_coefficients(c_data_t & comp_data) {
         double * x_loc = new double [n + 1];
         double sum_l_c = 0.0;
         for(int c = 0; c < n; ++c) {
-            double w_term = comp_data.tube_fracs[flux_node - 1].x[c];
-            double e_term = comp_data.tube_fracs[flux_node].x[c];
+            double w_term = comp_data.tube_fracs_inter[flux_node - 1].x[c];
+            double e_term = comp_data.tube_fracs_inter[flux_node].x[c];
             x_loc[c] = 0.5 * (w_term + e_term);
             sum_l_c = sum_l_c + x_loc[c];
         }
