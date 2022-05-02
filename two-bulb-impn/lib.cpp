@@ -142,8 +142,10 @@ void compute_coefficients(c_data_t & comp_data) {
         compute_coeff_matrix(flux_node, comp_data, x_loc);
     }
     
+    flux_node = ng;
+
     // Bulb 2
-    compute_coeff_matrix(ng, comp_data, comp_data.bulb_data_inter.mol_fracs_bulb2.x);
+    compute_coeff_matrix(flux_node, comp_data, comp_data.bulb_data_inter.mol_fracs_bulb2.x);
 }
 
 void reset_coefficients(c_data_t & comp_data) {
@@ -174,6 +176,7 @@ void bulb1(c_data_t & comp_data_N) {
     
     for(int i = 0; i < n; ++i) {
         double sum_loc = 0.0;
+
         for(int c = 0; c < n; ++c) {
             if(c != i) {
                 double dxj = comp_data_N.tube_fracs[0].x[c] - comp_data_N.bulb_data.mol_fracs_bulb1.x[c];
@@ -184,6 +187,7 @@ void bulb1(c_data_t & comp_data_N) {
 
         sum_loc = sum_loc + A * A_inv[i][i] * comp_data_N.tube_fracs[0].x[i] / (0.5 * dz);
         sum_loc = sum_loc + V / dt * comp_data_N.bulb_data_old.mol_fracs_bulb1.x[i];
+
         double ap = V / dt + A * A_inv[i][i] / (0.5 * dz);
 
         comp_data_N.bulb_data.mol_fracs_bulb1.x[i] = sum_loc / ap;
@@ -204,17 +208,21 @@ void bulb2(c_data_t & comp_data_N) {
     
     for(int i = 0; i < n; ++i) {
         double sum_loc = 0.0;
-        for(int j = 0; j < n; ++j) {
-            if(i != j) {
-                double dxj_dz = (comp_data_N.bulb_data.mol_fracs_bulb2.x[j] - comp_data_N.tube_fracs[ng - 1].x[j]) / (0.5 * dz);
-                sum_loc = sum_loc + A_inv[i][j] * dxj_dz;
+
+        for(int c = 0; c < n; ++c) {
+            if(i != c) {
+                double dxj = comp_data_N.bulb_data.mol_fracs_bulb2.x[c] - comp_data_N.tube_fracs[ng - 1].x[c];
+                double dxj_dz =  dxj / (0.5 * dz);
+                sum_loc = sum_loc +  A * A_inv[i][c] * dxj_dz;
             }
         }
-        double term_w = A * A_inv[i][i] * comp_data_N.tube_fracs[ng - 1].x[i] / (0.5 * dz);
-        double old_term = V / dt * comp_data_N.bulb_data_old.mol_fracs_bulb2.x[i];
-        sum_loc = - A * sum_loc + term_w + old_term;
 
-        comp_data_N.bulb_data.mol_fracs_bulb2.x[i] = sum_loc / (V / dt + A * A_inv[i][i] / (0.5 * dz));
+        sum_loc = -sum_loc + A * A_inv[i][i] * comp_data_N.tube_fracs[ng - 1].x[i] / (0.5 * dz);
+        sum_loc = sum_loc + V / dt * comp_data_N.bulb_data_old.mol_fracs_bulb2.x[i];
+
+        double ap = V / dt + A * A_inv[i][i] / (0.5 * dz);
+
+        comp_data_N.bulb_data.mol_fracs_bulb2.x[i] = sum_loc / ap;
     }
 }
 
@@ -231,6 +239,7 @@ void tube0(c_data_t & comp_data_N) {
     for(int i = 0; i < n; ++i) {
         double sum_loc_w = 0.0;
         double sum_loc_e = 0.0;
+
         for(int j = 0; j < n; ++j) {
             if(i != j) {
                 double dxj_dz_w = (comp_data_N.tube_fracs[0].x[j] - comp_data_N.bulb_data_inter.mol_fracs_bulb1.x[j]) / (0.5 * dz);
@@ -240,12 +249,14 @@ void tube0(c_data_t & comp_data_N) {
                 sum_loc_e = sum_loc_e + A_inv_e[i][j] * dxj_dz_e;
             }
         }
-        double term_w = A_inv_w[i][i] * comp_data_N.bulb_data_inter.mol_fracs_bulb1.x[i] / (0.5 * dz);
-        double term_e = A_inv_e[i][i] * comp_data_N.tube_fracs[1].x[i] / dz;
-        double old_term = dz / dt * comp_data_N.tube_fracs_old[0].x[i];
-        double sum_loc_tot = - sum_loc_w + sum_loc_e + term_w + term_e + old_term;
 
-        double ap = dz / dt + A_inv_w[i][i] / (0.5 * dz) + A_inv_e[i][i] / dz;
+        double xiW = comp_data_N.bulb_data_inter.mol_fracs_bulb1.x[i];
+        double xiE = comp_data_N.tube_fracs[1].x[i];
+        double old_term = dz / dt * comp_data_N.tube_fracs_old[0].x[i];
+
+        double sum_loc_tot = -sum_loc_w + sum_loc_e + A_inv_w[i][i] * xiW / (0.5 * dz) + A_inv_e[i][i] * xiE / dz + old_term;
+
+        double ap = (dz / dt + A_inv_w[i][i] / (0.5 * dz) + A_inv_e[i][i] / dz);
 
         comp_data_N.tube_fracs[0].x[i] = sum_loc_tot / ap;
     }
@@ -268,6 +279,7 @@ void tube_mid(c_data_t & comp_data_N) {
         for(int i = 0; i < n; ++i) {
             double sum_loc_w = 0.0;
             double sum_loc_e = 0.0;
+
             for(int j = 0; j < n; ++j) {
                 if(i != j) {
                     double dxj_dz_w = (comp_data_N.tube_fracs[node].x[j] - comp_data_N.tube_fracs[node - 1].x[j]) / dz;
@@ -280,9 +292,12 @@ void tube_mid(c_data_t & comp_data_N) {
             double xiW = comp_data_N.tube_fracs[node - 1].x[i];
             double xiE = comp_data_N.tube_fracs[node + 1].x[i];
             double old_term = dz / dt * comp_data_N.tube_fracs_old[node].x[i];
+
             double sum_loc_tot = -sum_loc_w + sum_loc_e + A_inv_w[i][i] / dz * xiW + A_inv_e[i][i] / dz * xiE + old_term;
 
-            comp_data_N.tube_fracs[node].x[i] = sum_loc_tot / (dz / dt + A_inv_w[i][i] / dz + A_inv_e[i][i] / dz);
+            double ap = (dz / dt + A_inv_w[i][i] / dz + A_inv_e[i][i] / dz);
+
+            comp_data_N.tube_fracs[node].x[i] = sum_loc_tot / ap;
         }
     }
 }
@@ -302,6 +317,7 @@ void tube_n(c_data_t & comp_data_N) {
     for(int i = 0; i < n; ++i) {
         double sum_loc_w = 0.0;
         double sum_loc_e = 0.0;
+
         for(int j = 0; j < n; ++j) {
             if(i != j) {
                 double dxj_dz_w = (comp_data_N.tube_fracs[ng - 1].x[j] - comp_data_N.tube_fracs[ng - 2].x[j]) / dz;
@@ -311,14 +327,19 @@ void tube_n(c_data_t & comp_data_N) {
                 sum_loc_e = sum_loc_e + A_inv_e[i][j] * dxj_dz_e;
             }
         }
+
         double xiW = comp_data_N.tube_fracs[ng - 2].x[i];
         double xiE = comp_data_N.bulb_data.mol_fracs_bulb2.x[i];
         double old_term = dz / dt * comp_data_N.tube_fracs_old[ng - 1].x[i];
+
         double sum_loc_tot = -sum_loc_w + sum_loc_e + A_inv_w[i][i] / dz * xiW + A_inv_e[i][i] / (0.5 * dz) * xiE + old_term;
 
-        comp_data_N.tube_fracs[ng - 1].x[i] = sum_loc_tot / (dz / dt + A_inv_w[i][i] / dz + A_inv_e[i][i] / (0.5 * dz));
+        double ap = (dz / dt + A_inv_w[i][i] / dz + A_inv_e[i][i] / (0.5 * dz));
+
+        comp_data_N.tube_fracs[ng - 1].x[i] = sum_loc_tot / ap;
     }
 }
+
 
 void comp_data_ref(c_data_t & comp_data) {
 
