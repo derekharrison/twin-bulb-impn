@@ -341,7 +341,7 @@ void tube_n(c_data_t & comp_data_N) {
 }
 
 
-void comp_data_ref(c_data_t & comp_data) {
+void update_compositions(c_data_t & comp_data) {
 
     bulb1(comp_data);
     
@@ -354,6 +354,128 @@ void comp_data_ref(c_data_t & comp_data) {
     bulb2(comp_data);
     
     set_frac_comp3(comp_data);
+}
+
+void allocate_tube_fracs(c_data_t & comp_data) {
+    int n = comp_data.n;
+    int ng = comp_data.ng;
+
+    comp_data.bulb_data.mol_fracs_bulb1.x = new double[n];
+    comp_data.bulb_data.mol_fracs_bulb2.x = new double[n];
+    comp_data.bulb_data_old.mol_fracs_bulb1.x = new double[n];
+    comp_data.bulb_data_old.mol_fracs_bulb2.x = new double[n];
+    comp_data.bulb_data_inter.mol_fracs_bulb1.x = new double[n];
+    comp_data.bulb_data_inter.mol_fracs_bulb2.x = new double[n];
+
+    // Allocate data for tube composition
+    comp_data.tube_fracs = new node_t[ng];
+    comp_data.tube_fracs_inter = new node_t[ng];
+    comp_data.tube_fracs_old = new node_t[ng];
+
+    // Allocate data for flux coefficient matrices
+    comp_data.coeff_mat_boundary = new c_mat_b_t[ng + 1];
+
+    // Allocate space for and initialize coefficient matrix
+    for(int flux_node = 0; flux_node < ng + 1; ++flux_node) {
+        comp_data.coeff_mat_boundary[flux_node].A = mat2D(n);
+        comp_data.coeff_mat_boundary[flux_node].A_inv = mat2D(n);
+        for(int c = 0; c < n; ++c) {
+            for(int c_l = 0; c_l < n; ++c_l) {
+                comp_data.coeff_mat_boundary[flux_node].A[c][c_l] = 0.0;
+                comp_data.coeff_mat_boundary[flux_node].A_inv[c][c_l] = 0.0;
+            }
+        }
+    }
+
+    // Initialize tube composition
+    for(int node = 0; node < ng; ++node) {
+        comp_data.tube_fracs[node].x = new double[n];
+        comp_data.tube_fracs_inter[node].x = new double[n];
+        comp_data.tube_fracs_old[node].x = new double[n];
+        for(int c = 0; c < n; ++c) {
+            comp_data.tube_fracs[node].x[c] = 1.0 / n;
+            comp_data.tube_fracs_inter[node].x[c] = 1.0 / n;
+            comp_data.tube_fracs_old[node].x[c] = 1.0 / n;
+        }
+    }
+}
+
+void deallocate_tube_fracs(c_data_t & comp_data) {
+    int n = comp_data.n;
+    int ng = comp_data.ng;
+
+    // Free allocated space
+    delete [] comp_data.bulb_data.mol_fracs_bulb1.x;
+    delete [] comp_data.bulb_data.mol_fracs_bulb2.x;
+    delete [] comp_data.bulb_data_old.mol_fracs_bulb1.x;
+    delete [] comp_data.bulb_data_old.mol_fracs_bulb2.x;
+    delete [] comp_data.bulb_data_inter.mol_fracs_bulb1.x;
+    delete [] comp_data.bulb_data_inter.mol_fracs_bulb2.x;
+
+    for(int flux_node = 0; flux_node < ng + 1; ++flux_node) {
+        free_mat2D(comp_data.coeff_mat_boundary[flux_node].A, n);
+        free_mat2D(comp_data.coeff_mat_boundary[flux_node].A_inv, n);
+    }
+
+    delete [] comp_data.coeff_mat_boundary;
+
+    for(int node = 0; node < ng; ++node) {
+        delete [] comp_data.tube_fracs[node].x;
+        delete [] comp_data.tube_fracs_inter[node].x;
+        delete [] comp_data.tube_fracs_old[node].x;
+    }
+
+    delete [] comp_data.tube_fracs;
+    delete [] comp_data.tube_fracs_inter;
+    delete [] comp_data.tube_fracs_old;
+}
+
+void init_bulb_composition(b_data_t & bulb_data, c_data_t & comp_data) {
+    int n = comp_data.n;
+    for(int c = 0; c < n; ++c) {
+        comp_data.bulb_data.mol_fracs_bulb1.x[c] = bulb_data.mol_fracs_bulb1.x[c];
+        comp_data.bulb_data.mol_fracs_bulb2.x[c] = bulb_data.mol_fracs_bulb2.x[c];
+        comp_data.bulb_data_old.mol_fracs_bulb1.x[c] = bulb_data.mol_fracs_bulb1.x[c];
+        comp_data.bulb_data_old.mol_fracs_bulb2.x[c] = bulb_data.mol_fracs_bulb2.x[c];
+        comp_data.bulb_data_inter.mol_fracs_bulb1.x[c] = bulb_data.mol_fracs_bulb1.x[c];
+        comp_data.bulb_data_inter.mol_fracs_bulb2.x[c] = bulb_data.mol_fracs_bulb2.x[c];
+    }
+}
+
+void update_old_timestep_data(c_data_t & comp_data) {
+    int n = comp_data.n;
+    int ng = comp_data.ng;
+
+    // Update bulb composition of previous time step
+    for(int c = 0; c < n; ++c) {
+        comp_data.bulb_data_old.mol_fracs_bulb1.x[c] = comp_data.bulb_data.mol_fracs_bulb1.x[c];
+        comp_data.bulb_data_old.mol_fracs_bulb2.x[c] = comp_data.bulb_data.mol_fracs_bulb2.x[c];
+    }
+
+    // Update tube composition of previous time step
+    for(int node = 0; node < ng; ++node) {
+        for(int c = 0; c < n; ++c) {
+            comp_data.tube_fracs_old[node].x[c] = comp_data.tube_fracs[node].x[c];
+        }
+    }
+}
+
+void update_intermediate_data(c_data_t & comp_data) {
+    int n = comp_data.n;
+    int ng = comp_data.ng;
+
+    // Update intermediate bulb composition
+    for(int c = 0; c < n; ++c) {
+        comp_data.bulb_data_inter.mol_fracs_bulb1.x[c] = comp_data.bulb_data.mol_fracs_bulb1.x[c];
+        comp_data.bulb_data_inter.mol_fracs_bulb2.x[c] = comp_data.bulb_data.mol_fracs_bulb2.x[c];
+    }
+
+    // Update intermediate tube composition
+    for(int node = 0; node < ng; ++node) {
+        for(int c = 0; c < n; ++c) {
+            comp_data.tube_fracs_inter[node].x[c] = comp_data.tube_fracs[node].x[c];
+        }
+    }
 }
 
 void compute_bulb_compositions(e_params_t e_params,
@@ -375,53 +497,9 @@ void compute_bulb_compositions(e_params_t e_params,
     comp_data.bulb_data_old = bulb_data;
     comp_data.bulb_data_inter = bulb_data;
     
-    comp_data.bulb_data.mol_fracs_bulb1.x = new double[n];
-    comp_data.bulb_data.mol_fracs_bulb2.x = new double[n];
-    comp_data.bulb_data_old.mol_fracs_bulb1.x = new double[n];
-    comp_data.bulb_data_old.mol_fracs_bulb2.x = new double[n];
-    comp_data.bulb_data_inter.mol_fracs_bulb1.x = new double[n];
-    comp_data.bulb_data_inter.mol_fracs_bulb2.x = new double[n];
-    
-    for(int c = 0; c < n; ++c) {
-        comp_data.bulb_data.mol_fracs_bulb1.x[c] = bulb_data.mol_fracs_bulb1.x[c];
-        comp_data.bulb_data.mol_fracs_bulb2.x[c] = bulb_data.mol_fracs_bulb2.x[c];
-        comp_data.bulb_data_old.mol_fracs_bulb1.x[c] = bulb_data.mol_fracs_bulb1.x[c];
-        comp_data.bulb_data_old.mol_fracs_bulb2.x[c] = bulb_data.mol_fracs_bulb2.x[c];
-        comp_data.bulb_data_inter.mol_fracs_bulb1.x[c] = bulb_data.mol_fracs_bulb1.x[c];
-        comp_data.bulb_data_inter.mol_fracs_bulb2.x[c] = bulb_data.mol_fracs_bulb2.x[c];
-    }
-    
-    // Allocate data for tube composition
-    comp_data.tube_fracs = new node_t[ng];
-    comp_data.tube_fracs_inter = new node_t[ng];
-    comp_data.tube_fracs_old = new node_t[ng];
-    
-    // Allocate data for flux coefficient matrices
-    comp_data.coeff_mat_boundary = new c_mat_b_t[ng + 1];
-    
-    // Allocate space for and initialize coefficient matrix
-    for(int flux_node = 0; flux_node < ng + 1; ++flux_node) {
-        comp_data.coeff_mat_boundary[flux_node].A = mat2D(n);
-        comp_data.coeff_mat_boundary[flux_node].A_inv = mat2D(n);
-        for(int c = 0; c < n; ++c) {
-            for(int c_l = 0; c_l < n; ++c_l) {
-                comp_data.coeff_mat_boundary[flux_node].A[c][c_l] = 0.0;
-                comp_data.coeff_mat_boundary[flux_node].A_inv[c][c_l] = 0.0;
-            }
-        }
-    }
-    
-    // Initialize tube composition
-    for(int node = 0; node < ng; ++node) {
-        comp_data.tube_fracs[node].x = new double[n];
-        comp_data.tube_fracs_inter[node].x = new double[n];
-        comp_data.tube_fracs_old[node].x = new double[n];
-        for(int c = 0; c < n; ++c) {
-            comp_data.tube_fracs[node].x[c] = 1.0 / n;
-            comp_data.tube_fracs_inter[node].x[c] = 1.0 / n;
-            comp_data.tube_fracs_old[node].x[c] = 1.0 / n;
-        }
-    }
+    allocate_tube_fracs(comp_data);
+
+    init_bulb_composition(bulb_data, comp_data);
 
     // Compute composition
     int max_out_it = MAX_OUT;
@@ -433,35 +511,13 @@ void compute_bulb_compositions(e_params_t e_params,
     // Loop to time t = tf
     while(t < t_params.tf) {
         
-        // Update bulb composition of previous time step
-        for(int c = 0; c < n; ++c) {
-            comp_data.bulb_data_old.mol_fracs_bulb1.x[c] = comp_data.bulb_data.mol_fracs_bulb1.x[c];
-            comp_data.bulb_data_old.mol_fracs_bulb2.x[c] = comp_data.bulb_data.mol_fracs_bulb2.x[c];
-        }
-        
-        // Update tube composition of previous time step
-        for(int node = 0; node < ng; ++node) {
-            for(int c = 0; c < n; ++c) {
-                comp_data.tube_fracs_old[node].x[c] = comp_data.tube_fracs[node].x[c];
-            }
-        }
+        update_old_timestep_data(comp_data);
 
         // Outer Gauss-Seidel iterations
         int out_it = 0;
         while(out_it < max_out_it) {
             
-            // Update intermediate bulb composition
-            for(int c = 0; c < n; ++c) {
-                comp_data.bulb_data_inter.mol_fracs_bulb1.x[c] = comp_data.bulb_data.mol_fracs_bulb1.x[c];
-                comp_data.bulb_data_inter.mol_fracs_bulb2.x[c] = comp_data.bulb_data.mol_fracs_bulb2.x[c];
-            }
-            
-            // Update intermediate tube composition
-            for(int node = 0; node < ng; ++node) {
-                for(int c = 0; c < n; ++c) {
-                    comp_data.tube_fracs_inter[node].x[c] = comp_data.tube_fracs[node].x[c];
-                }
-            }
+            update_intermediate_data(comp_data);
             
             reset_coefficients(comp_data);
             
@@ -472,7 +528,7 @@ void compute_bulb_compositions(e_params_t e_params,
             while(in_it < max_in_it) {
        
                 // Update estimates bulb and tube composition
-                comp_data_ref(comp_data);
+                update_compositions(comp_data);
                 
                 in_it++;
             }
@@ -504,29 +560,7 @@ void compute_bulb_compositions(e_params_t e_params,
     }
     
     // Free allocated space
-    delete [] comp_data.bulb_data.mol_fracs_bulb1.x;
-    delete [] comp_data.bulb_data.mol_fracs_bulb2.x;
-    delete [] comp_data.bulb_data_old.mol_fracs_bulb1.x;
-    delete [] comp_data.bulb_data_old.mol_fracs_bulb2.x;
-    delete [] comp_data.bulb_data_inter.mol_fracs_bulb1.x;
-    delete [] comp_data.bulb_data_inter.mol_fracs_bulb2.x;
-    
-    for(int flux_node = 0; flux_node < ng + 1; ++flux_node) {
-        free_mat2D(comp_data.coeff_mat_boundary[flux_node].A, n);
-        free_mat2D(comp_data.coeff_mat_boundary[flux_node].A_inv, n);
-    }
-    
-    delete [] comp_data.coeff_mat_boundary;
-    
-    for(int node = 0; node < ng; ++node) {
-        delete [] comp_data.tube_fracs[node].x;
-        delete [] comp_data.tube_fracs_inter[node].x;
-        delete [] comp_data.tube_fracs_old[node].x;
-    }
-    
-    delete [] comp_data.tube_fracs;
-    delete [] comp_data.tube_fracs_inter;
-    delete [] comp_data.tube_fracs_old;
+    deallocate_tube_fracs(comp_data);
 }
 
 void store_fractions(t_params_t t_params, int n) {
