@@ -356,7 +356,7 @@ void update_compositions(c_data_t & comp_data) {
     set_frac_comp3(comp_data);
 }
 
-void allocate_tube_fracs(c_data_t & comp_data) {
+void allocate_composition_data(c_data_t & comp_data) {
     int n = comp_data.n;
     int ng = comp_data.ng;
 
@@ -400,7 +400,7 @@ void allocate_tube_fracs(c_data_t & comp_data) {
     }
 }
 
-void deallocate_tube_fracs(c_data_t & comp_data) {
+void deallocate_composition_data(c_data_t & comp_data) {
     int n = comp_data.n;
     int ng = comp_data.ng;
 
@@ -497,7 +497,7 @@ void compute_bulb_compositions(e_params_t e_params,
     comp_data.bulb_data_old = bulb_data;
     comp_data.bulb_data_inter = bulb_data;
     
-    allocate_tube_fracs(comp_data);
+    allocate_composition_data(comp_data);
 
     init_bulb_composition(bulb_data, comp_data);
 
@@ -560,7 +560,7 @@ void compute_bulb_compositions(e_params_t e_params,
     }
     
     // Free allocated space
-    deallocate_tube_fracs(comp_data);
+    deallocate_composition_data(comp_data);
 }
 
 void store_fractions(t_params_t t_params, int n) {
