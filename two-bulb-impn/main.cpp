@@ -16,7 +16,7 @@
 
 int main(int argc, const char * argv[]) {
     
-    // Number of grid nodes
+    // Number of grid nodes ng and number of components n
     int ng = 20;
     int n = 5;
     
