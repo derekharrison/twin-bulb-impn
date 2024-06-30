@@ -8,7 +8,6 @@
 //  with implicit time discretization.
 //
 
-#include <chrono>
 #include <iostream>
 
 #include "lib.hpp"
@@ -54,8 +53,8 @@ int main(int argc, const char * argv[]) {
     // Time parameters
     t_params_t t_params;
     t_params.to = 0.0; // Initial time (h)
-    t_params.tf = 20.0; // Final time (h)
-    t_params.nt = 20; // Number of time steps.
+    t_params.tf = 10.0; // Final time (h)
+    t_params.nt = 10; // Number of time steps.
     t_params.dt = (t_params.tf - t_params.to) / t_params.nt; // Time sampling
 
     // Diffusivities
@@ -85,7 +84,6 @@ int main(int argc, const char * argv[]) {
     p_params.D[2][3] = D34; // units (m2 / h)
     p_params.D[2][4] = D35; // units (m2 / h)
     p_params.D[3][4] = D45; // units (m2 / h)
-    
     p_params.D[1][0] = D12; // units (m2 / h)
     p_params.D[2][0] = D13; // units (m2 / h)
     p_params.D[3][0] = D14; // units (m2 / h)
@@ -99,7 +97,7 @@ int main(int argc, const char * argv[]) {
     
     // Perform two-bulb diffusion experiment
     compute_bulb_compositions(e_params, p_params, t_params, ng, n, bulb_data);
-
+    
     // Print results
     std::cout << "bulb 1 data: " << std::endl;
     std::cout << "bulb 1 frac 1: " << bulb_data.mol_fracs_bulb1.x[0] << std::endl;

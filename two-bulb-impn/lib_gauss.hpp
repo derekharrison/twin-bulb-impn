@@ -5,11 +5,9 @@
  *      Author: d-w-h
  */
 
-#ifndef TWO_BULB_IMPN_LIB_GAUSS_HPP_
-#define TWO_BULB_IMPN_LIB_GAUSS_HPP_
-
+#ifndef lib_gauss_hpp
+#define lib_gauss_hpp
 
 void gauss_jordan(double ** mat, int n, double ** mat_inv);
 
-
-#endif /* TWO_BULB_IMPN_LIB_GAUSS_HPP_ */
+#endif /* lib_gauss_hpp */
