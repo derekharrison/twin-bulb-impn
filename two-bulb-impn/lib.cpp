@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "lib.hpp"
-#include "lib_cofactor.hpp"
 #include "lib_gauss.hpp"
 #include "user_types.h"
 
